@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== HEADER =====
+  // ===== HEADER ===== Bagian Biru Atas yang isinya logo dan nama koperasi
   Widget _header() {
     return Container(
       padding: EdgeInsets.only(top: 60, bottom: 80),
@@ -69,14 +69,17 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         children: [
           CircleAvatar(
+            //Logonya ditaruh disini
             radius: 65,
             backgroundColor: Colors.white,
             backgroundImage: AssetImage('assets/logo_koperasi.jpeg'),
           ),
           SizedBox(height: 8),
           Text(
+            //Tulisan Koperasi Karyawan
             'Koperasi Karyawan',
             style: GoogleFonts.beVietnamPro(
+              //kalau tulisannya masih gatel kurang mirip editnya disini
               color: Colors.white,
               fontSize: 30,
               fontWeight: FontWeight.w700,
@@ -84,8 +87,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           Text(
+            //Tulisan Indomobil di bawah koperasi karyawan
             'Indomobil MT Haryono',
             style: GoogleFonts.beVietnamPro(
+              //kalau tulisannya masih gatel kurang mirip editnya disini
               color: Colors.white70,
               fontSize: 23,
               fontWeight: FontWeight.w600,
@@ -96,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== TABS =====
+  // ===== TABS ===== Ini tombol masuk dan daftar yang di bawah background biru
   Widget _tabs() {
     return Center(
       child: Container(
@@ -119,7 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: () => setState(() => tab = i),
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 60,
+          vertical: 15,
+        ), //Buat ngatur gede kecilnya tombol masuk daftar
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
@@ -137,19 +145,23 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== WELCOME =====
+  // ===== WELCOME ===== Bagian yang ngatur tulisan Hi selamat datang dan silakan masukkan data dst.
   Widget _welcome() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Hi, Selamat Datang!',
-          style: GoogleFonts.manrope(fontSize: 28, fontWeight: FontWeight.w700),
+          style: GoogleFonts.manrope(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+          ), //kalau tulisannya masih gatel kurang mirip editnya disini
         ),
         SizedBox(height: 2),
         Text(
           'Silakan masukkan data untuk melanjutkan penggunaan aplikasi.',
           style: GoogleFonts.manrope(
+            //kalau tulisannya masih gatel kurang mirip editnya disini
             fontSize: 18,
             fontWeight: FontWeight.w400,
             color: Colors.grey,
@@ -159,23 +171,32 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== FORM =====
+  // ===== FORM ===== Bubble - bubble buat mengisi email sama password
   Widget _form() {
     return Column(
       children: [
         TextField(
           controller: email,
-          style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w500),
+          style: GoogleFonts.roboto(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ), //edit tulisan
           decoration: InputDecoration(
+            // ini yang mengatur bagian email
             labelText: 'Nomor Anggota atau Email',
-            floatingLabelBehavior: FloatingLabelBehavior.always,
+            floatingLabelBehavior:
+                FloatingLabelBehavior
+                    .always, //bagian yang ngatur tulisan nomor anggota atau email tetep di atas
             hintText: 'Example@gmail.com',
             hintStyle: GoogleFonts.roboto(
+              //sama edit tulisan juga
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Colors.grey.shade500,
             ),
-            prefixIcon: const Icon(Icons.person_outline),
+            prefixIcon: const Icon(
+              Icons.person_outline,
+            ), //icon orang, belom nemu yang persis kayak desain figma
 
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
             enabledBorder: OutlineInputBorder(
@@ -196,12 +217,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
         const SizedBox(height: 14),
         TextField(
+          // ini yang mengatur bagian passwordnya
           controller: password,
-          style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w500),
+          style: GoogleFonts.roboto(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ), //edit tulisan passwordnya
           obscureText: obscure,
           decoration: InputDecoration(
             labelText: 'Password',
-            floatingLabelBehavior: FloatingLabelBehavior.always,
+            floatingLabelBehavior:
+                FloatingLabelBehavior
+                    .always, //sama kayak email, biar tulisan passwordnya tetep di atas
             hintText: '**********',
             prefixIcon: const Icon(Icons.key),
             suffixIcon: IconButton(
@@ -249,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== OPTIONS =====
+  // ===== OPTIONS ===== // yang ngatur remember me sama forgor password
   Widget _options() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -257,6 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Row(
           children: [
             Checkbox(
+              // dari sini sampe remember me ngatur sifat checkboxnya
               value: remember,
               onChanged: (v) => setState(() => remember = v ?? false),
               checkColor: Colors.black,
@@ -282,6 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
         TextButton(
           onPressed: () {},
           child: Text(
+            //tulisan forgot password
             'Forgot Password',
             style: GoogleFonts.manrope(
               color: Colors.red.shade800,
@@ -293,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ===== LOGIN =====
+  // ===== LOGIN ===== Tombol Login
   Widget _loginButton() {
     return SizedBox(
       width: double.infinity,
