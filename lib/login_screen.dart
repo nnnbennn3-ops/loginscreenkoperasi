@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -120,14 +121,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _tabBtn(String t, int i) {
     final active = tab == i;
+
     return InkWell(
-      onTap: () => setState(() => tab = i),
+      onTap: () {
+        if (i == 1) {
+          // 👉 TAB DAFTAR
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RegisterScreen()),
+          );
+        }
+      },
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 60,
-          vertical: 15,
-        ), //Buat ngatur gede kecilnya tombol masuk daftar
+        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 15),
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
