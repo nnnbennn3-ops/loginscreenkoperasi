@@ -22,7 +22,6 @@ class SimpananDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 213, 219, 237),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color.fromARGB(255, 247, 247, 247),
@@ -128,12 +127,14 @@ class SimpananDetailScreen extends StatelessWidget {
                   date: '02 Jun 2025, 09.15',
                   amount: '-Rp 150.000',
                   minus: true,
+                  icon: Icons.account_balance_wallet,
                 ),
                 Divider(),
                 _HistoryItem(
                   title: 'Setoran Dana',
                   date: '25 May 2025, 09.15',
                   amount: '+Rp 200.000',
+                  icon: Icons.savings,
                 ),
               ],
             ),
@@ -171,11 +172,13 @@ class _HistoryItem extends StatelessWidget {
   final String date;
   final String amount;
   final bool minus;
+  final IconData icon;
 
   const _HistoryItem({
     required this.title,
     required this.date,
     required this.amount,
+    required this.icon,
     this.minus = false,
   });
 
@@ -188,11 +191,7 @@ class _HistoryItem extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: Colors.blue.shade50,
-            child: const Icon(
-              Icons.account_balance_wallet,
-              size: 18,
-              color: Colors.blue,
-            ),
+            child: Icon(icon, size: 18, color: Colors.blue),
           ),
           const SizedBox(width: 12),
           Expanded(

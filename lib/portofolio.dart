@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simpanan_detail_screen.dart';
+import 'pinjaman_detail_screen.dart';
 
 class PortofolioScreen extends StatelessWidget {
   const PortofolioScreen({super.key});
 
   //Data Boongan, nanti kan dari backend/db
-  final double simpananWajib = 10000000;
+  final double simpananWajib = 5000000;
   final double simpananSukarela = 2500000;
   final double sisaPinjaman = 3000000;
 
@@ -43,7 +44,7 @@ class PortofolioScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _simpananSukarelaCard(context),
             const SizedBox(height: 12),
-            _pinjamanCard(),
+            _pinjamanCard(context),
           ],
         ),
       ),
@@ -100,88 +101,98 @@ class PortofolioScreen extends StatelessWidget {
   }
 
   // ----- Widget Pinjaman -----
-  Widget _pinjamanCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xff8b0000),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _pinjamanCard(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PinjamanDetailScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xff8b0000),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pinjaman',
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    'Sisa Pinjaman',
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    rupiah(sisaPinjaman),
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Tanggal Cicilan\n15 Jun 2025',
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Lihat Detail →',
+                    style: GoogleFonts.beVietnamPro(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Stack(
+              alignment: Alignment.center,
               children: [
-                Text(
-                  'Pinjaman',
-                  style: GoogleFonts.beVietnamPro(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
+                SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: CircularProgressIndicator(
+                    value: 0.5,
+                    backgroundColor: Colors.white24,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.white,
+                    ),
+                    strokeWidth: 6,
                   ),
                 ),
-                const SizedBox(height: 15),
                 Text(
-                  'Sisa Pinjaman',
+                  '50%',
                   style: GoogleFonts.beVietnamPro(
-                    color: Colors.white70,
+                    color: Colors.white,
                     fontSize: 16,
-                    // fontWeight: FontWeight.bold
-                  ),
-                ),
-                Text(
-                  rupiah(sisaPinjaman),
-                  style: GoogleFonts.beVietnamPro(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Tanggal Cicilan\n15 Jun 2025',
-                  style: GoogleFonts.beVietnamPro(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Lihat Detail ->',
-                  style: GoogleFonts.beVietnamPro(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-          ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 64,
-                height: 64,
-                child: CircularProgressIndicator(
-                  value: 0.5,
-                  backgroundColor: Colors.white24,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 6,
-                ),
-              ),
-              Text(
-                '50%',
-                style: GoogleFonts.beVietnamPro(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

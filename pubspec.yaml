@@ -16,3 +16,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo_koperasi.jpeg
+    - assets/pinjam.jpeg
