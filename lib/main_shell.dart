@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'portofolio.dart';
+import 'formulir_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -15,7 +16,7 @@ class _MainShellState extends State<MainShell> {
   final pages = const [
     HomeScreen(),
     PortofolioScreen(),
-    Placeholder(), // Formulir
+    FormulirScreen(), // Formulir
     Placeholder(), // Pengaturan
   ];
 

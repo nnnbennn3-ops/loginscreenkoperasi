@@ -67,7 +67,7 @@ class _SimulasiPinjamanPageState extends State<SimulasiPinjamanPage> {
       height: 300,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
+        padding: const EdgeInsets.fromLTRB(8, 56, 20, 24),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,

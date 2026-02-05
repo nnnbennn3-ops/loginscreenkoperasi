@@ -9,37 +9,6 @@ class PinjamanDetailScreen extends StatelessWidget {
     return 'Rp ${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}';
   } //Regex buat tulisan rupiah
 
-  // Widget halfCircleProgress({
-  //   required double progress, // 0.0 - 1.0
-  //   required double size,
-  //   required Color color,
-  //   required Color backgroundColor,
-  // }) {
-  //   return SizedBox(
-  //     width: size,
-  //     height: size / 2,
-  //     child: ClipRect(
-  //       child: Align(
-  //         alignment: Alignment.topCenter,
-  //         heightFactor: 0.5,
-  //         child: Transform.rotate(
-  //           angle: 3.1415926535, // 180 derajat
-  //           child: SizedBox(
-  //             width: size,
-  //             height: size,
-  //             child: CircularProgressIndicator(
-  //               value: progress,
-  //               strokeWidth: 12,
-  //               backgroundColor: backgroundColor,
-  //               valueColor: AlwaysStoppedAnimation<Color>(color),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,14 +25,16 @@ class PinjamanDetailScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          _ringkasan(context),
-          const SizedBox(height: 12),
-          _info(),
-          const SizedBox(height: 12),
-          Expanded(child: _history()),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _ringkasan(context),
+            const SizedBox(height: 12),
+            _info(),
+            const SizedBox(height: 12),
+            _history(),
+          ],
+        ),
       ),
     );
   }
@@ -227,58 +198,61 @@ class PinjamanDetailScreen extends StatelessWidget {
           topRight: Radius.circular(24),
         ),
       ),
-      child: ListView.builder(
+      child: Padding(
         padding: const EdgeInsets.all(16),
-        itemCount: 12,
-        itemBuilder: (_, i) {
-          final lunas = i < 6;
-          return Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Cicilan ${i + 1} dari 12',
-                        style: GoogleFonts.beVietnamPro(
-                          fontWeight: FontWeight.w600,
+        //itemCount: 12,
+        //itemBuilder: (_, i) {
+        child: Column(
+          children: List.generate(12, (i) {
+            final lunas = i < 6;
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Cicilan ${i + 1} dari 12',
+                          style: GoogleFonts.beVietnamPro(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '25 May 2025, 09.15',
-                        style: GoogleFonts.beVietnamPro(
-                          fontSize: 12,
-                          color: Colors.grey,
+                        Text(
+                          '25 May 2025, 09.15',
+                          style: GoogleFonts.beVietnamPro(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        rupiah(500000),
-                        style: GoogleFonts.beVietnamPro(
-                          color: lunas ? Colors.black : Colors.grey,
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          rupiah(500000),
+                          style: GoogleFonts.beVietnamPro(
+                            color: lunas ? Colors.black : Colors.grey,
+                          ),
                         ),
-                      ),
-                      Text(
-                        lunas ? 'Lunas' : 'Belum ada tagihan',
-                        style: GoogleFonts.beVietnamPro(
-                          fontSize: 12,
-                          color: lunas ? Colors.green : Colors.grey,
+                        Text(
+                          lunas ? 'Lunas' : 'Belum ada tagihan',
+                          style: GoogleFonts.beVietnamPro(
+                            fontSize: 12,
+                            color: lunas ? Colors.green : Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const Divider(),
-            ],
-          );
-        },
+                      ],
+                    ),
+                  ],
+                ),
+                const Divider(),
+              ],
+            );
+          }),
+        ),
       ),
     );
   }

@@ -208,86 +208,112 @@ class PortofolioScreen extends StatelessWidget {
     bool border = false,
     bool darkText = false,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            border ? Border.all(color: Colors.grey.shade300, width: 1) : null,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.beVietnamPro(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: darkText ? Colors.black : Colors.white,
-                  ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (_) => SimpananDetailScreen(
+                  title: title,
+                  saldo:
+                      title == 'Simpanan Wajib'
+                          ? simpananWajib
+                          : simpananSukarela,
+                  primaryColor:
+                      title == 'Simpanan Wajib'
+                          ? const Color(0xFF0B1E8A)
+                          : const Color(0xFF1E40AF),
+                  icon:
+                      title == 'Simpanan Wajib'
+                          ? Icons.receipt_long
+                          : Icons.account_balance_wallet,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  amount,
-                  style: GoogleFonts.beVietnamPro(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: darkText ? Colors.black : Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => SimpananDetailScreen(
-                              title: title,
-                              saldo:
-                                  title == 'Simpanan Wajib'
-                                      ? simpananWajib
-                                      : simpananSukarela,
-                              primaryColor:
-                                  title == 'Simpanan Wajib'
-                                      ? const Color(0xFF0B1E8A)
-                                      : const Color(0xFF1E40AF),
-                              icon:
-                                  title == 'Simpanan Wajib'
-                                      ? Icons.receipt_long
-                                      : Icons.account_balance_wallet,
-                            ),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Lihat Detail →',
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+          border:
+              border ? Border.all(color: Colors.grey.shade300, width: 1) : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
                     style: GoogleFonts.beVietnamPro(
-                      fontSize: 15,
-                      color: darkText ? Colors.grey.shade600 : Colors.white70,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
+                      color: darkText ? Colors.black : Colors.white,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Text(
+                    amount,
+                    style: GoogleFonts.beVietnamPro(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: darkText ? Colors.black : Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => SimpananDetailScreen(
+                                title: title,
+                                saldo:
+                                    title == 'Simpanan Wajib'
+                                        ? simpananWajib
+                                        : simpananSukarela,
+                                primaryColor:
+                                    title == 'Simpanan Wajib'
+                                        ? const Color(0xFF0B1E8A)
+                                        : const Color(0xFF1E40AF),
+                                icon:
+                                    title == 'Simpanan Wajib'
+                                        ? Icons.receipt_long
+                                        : Icons.account_balance_wallet,
+                              ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Lihat Detail →',
+                      style: GoogleFonts.beVietnamPro(
+                        fontSize: 15,
+                        color: darkText ? Colors.grey.shade600 : Colors.white70,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: darkText ? Colors.white : Colors.blue.shade900,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: darkText ? Colors.white : Colors.blue.shade900,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
