@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+//import 'portofolio.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showSaldo = true;
+  //int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _bottomNav(),
+      //bottomNavigationBar: _bottomNav(),
     );
   }
 
@@ -91,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Text(
-                  showSaldo ? 'Rp 12.500.000' : '••••••',
+                  showSaldo ? 'Rp 12.500.000' : '•••••••••',
                   style: GoogleFonts.manrope(
                     color: Colors.white,
                     fontSize: 26,
@@ -151,27 +153,51 @@ class _HomeScreenState extends State<HomeScreen> {
   // ================= RIWAYAT =================
   Widget _riwayatTitle() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Riwayat Transaksi',
-            style: GoogleFonts.manrope(
+            style: GoogleFonts.beVietnamPro(
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              //Bulannya
               Text(
-                'Outgoing: Rp 175.000',
-                style: GoogleFonts.manrope(fontSize: 12),
+                'Bulan ini',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-              Text(
-                'Incoming: Rp 600.000',
-                style: GoogleFonts.manrope(fontSize: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Outgoing: Rp 175.000',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Incoming: Rp 600.000',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -192,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
             amount: '-Rp 150.000',
             isMinus: true,
           ),
+          const Divider(color: Colors.grey),
           _trxItem(
             icon: Icons.savings,
             title: 'Setoran Dana',
@@ -199,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
             amount: '+Rp 200.000',
             isMinus: false,
           ),
+          const Divider(color: Colors.grey),
           _trxItem(
             icon: Icons.store,
             title: 'Indomaret Kopkar',
@@ -206,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
             amount: '-Rp 75.000',
             isMinus: true,
           ),
+          const Divider(color: Colors.grey),
           _trxItem(
             icon: Icons.attach_money,
             title: 'SHU',
@@ -213,6 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
             amount: '+Rp 500.000',
             isMinus: false,
           ),
+          const Divider(color: Colors.grey),
         ],
       ),
     );
@@ -263,26 +293,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ================= BOTTOM NAV =================
-  Widget _bottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      selectedItemColor: const Color(0xFF0B1E8A),
-      unselectedItemColor: Colors.grey,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.pie_chart),
-          label: 'Portofolio',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.description),
-          label: 'Formulir',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Pengaturan',
-        ),
-      ],
-    );
-  }
+  // Widget _bottomNav() {
+  //   return BottomNavigationBar(
+  //     currentIndex: _currentIndex,
+  //     selectedItemColor: const Color(0xFF0B1E8A),
+  //     unselectedItemColor: Colors.grey,
+
+  //     onTap: (index) {
+  //       if (index == _currentIndex) return;
+
+  //       setState(() => _currentIndex = index);
+
+  //       if (index == 1) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (_) => const PortofolioScreen()),
+  //         );
+  //       }
+  //     },
+  //     items: const [
+  //       BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+  //       BottomNavigationBarItem(
+  //         icon: Icon(Icons.pie_chart),
+  //         label: 'Portofolio',
+  //       ),
+  //       BottomNavigationBarItem(
+  //         icon: Icon(Icons.description),
+  //         label: 'Formulir',
+  //       ),
+  //       BottomNavigationBarItem(
+  //         icon: Icon(Icons.settings),
+  //         label: 'Pengaturan',
+  //       ),
+  //     ],
+  //   );
+  // }
 }
