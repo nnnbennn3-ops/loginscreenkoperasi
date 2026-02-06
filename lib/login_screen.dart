@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return InkWell(
       onTap: () {
         if (i == 1) {
-          // 👉 TAB DAFTAR
+          // MENUJU TAB DAFTAR
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegisterScreen()),

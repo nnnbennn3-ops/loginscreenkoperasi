@@ -67,7 +67,7 @@ class _SimulasiPinjamanPageState extends State<SimulasiPinjamanPage> {
       height: 300,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(8, 56, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 56, 24, 20),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -81,10 +81,12 @@ class _SimulasiPinjamanPageState extends State<SimulasiPinjamanPage> {
             Row(
               children: [
                 IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 10),
                 Text(
                   'Simulasi Pinjaman',
                   style: GoogleFonts.beVietnamPro(

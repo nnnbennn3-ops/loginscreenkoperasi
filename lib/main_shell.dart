@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'portofolio.dart';
 import 'formulir_screen.dart';
+import 'settings_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -17,7 +18,7 @@ class _MainShellState extends State<MainShell> {
     HomeScreen(),
     PortofolioScreen(),
     FormulirScreen(), // Formulir
-    Placeholder(), // Pengaturan
+    SettingsScreen(), // Pengaturan
   ];
 
   @override
