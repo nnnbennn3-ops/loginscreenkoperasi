@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:provider/provider.dart';
+import 'providers/home_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => HomeProvider(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {

@@ -1,6 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../providers/home_provider.dart';
+import 'add_transaction_screen.dart';
+
 //import 'portofolio.dart';
+
+// final Map<String, dynamic> homeJson = {
+//   "saldo": {"total": 12500000, "wajib": 10000000, "sukarela": 2500000},
+//   "summary": {"withdraw": 175000, "deposit": 600000},
+//   "transactions": [
+//     {
+//       "type": "withdraw",
+//       "title": "Penarikan Dana",
+//       "date": "02 Jun 2025, 09.15",
+//       "amount": 150000,
+//     },
+//     {
+//       "type": "deposit",
+//       "title": "Setoran Dana",
+//       "date": "02 Jun 2025, 09.15",
+//       "amount": 200000,
+//     },
+//     {
+//       "type": "withdraw",
+//       "title": "Indomaret Kopkar",
+//       "date": "02 Jun 2025, 09.15",
+//       "amount": 75000,
+//     },
+//     {
+//       "type": "deposit",
+//       "title": "SHU",
+//       "date": "02 Jun 2025, 09.15",
+//       "amount": 500000,
+//     },
+//   ],
+// };
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,24 +46,88 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showSaldo = true;
+
+  String rupiah(double v) {
+    return 'Rp ${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}';
+  } //Regular Expression buat format rupiah
   //int _currentIndex = 0;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     context.read<HomeProvider>().loadHome();
+  //   });
+  // }
+
+  Map<String, List<Map<String, dynamic>>> groupByMonth(
+    List<Map<String, dynamic>> transactions,
+  ) {
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+
+    for (final trx in transactions) {
+      final date = DateTime.parse(trx['date']);
+      final key = '${_monthName(date.month)} ${date.year}';
+
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(trx);
+    }
+    return grouped;
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            _header(),
-            const SizedBox(height: 6),
-            _saldoCard(),
-            _riwayatTitle(),
-            _riwayatList(),
-          ],
+        child: Consumer<HomeProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final homeJson = provider.homeData!;
+
+            return Column(
+              children: [
+                _header(),
+                const SizedBox(height: 6),
+                _saldoCard(homeJson),
+                _riwayatTitle(homeJson),
+                _riwayatList(homeJson),
+              ],
+            );
+          },
         ),
       ),
-      //bottomNavigationBar: _bottomNav(),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -62,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ================= SALDO CARD =================
-  Widget _saldoCard() {
+  Widget _saldoCard(Map<String, dynamic> homeJson) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Container(
@@ -93,7 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Text(
-                  showSaldo ? 'Rp 12.500.000' : '•••••••••',
+                  showSaldo
+                      ? rupiah((homeJson['saldo']['total'] as num).toDouble())
+                      : '•••••••••',
                   style: GoogleFonts.manrope(
                     color: Colors.white,
                     fontSize: 26,
@@ -119,8 +220,14 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _saldoItem('Simpanan Wajib', 'Rp 10.000.000'),
-                _saldoItem('Simpanan Sukarela', 'Rp 2.500.000'),
+                _saldoItem(
+                  'Simpanan Wajib',
+                  rupiah((homeJson['saldo']['wajib'] as num).toDouble()),
+                ),
+                _saldoItem(
+                  'Simpanan Sukarela',
+                  rupiah((homeJson['saldo']['sukarela'] as num).toDouble()),
+                ),
               ],
             ),
           ],
@@ -151,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ================= RIWAYAT =================
-  Widget _riwayatTitle() {
+  Widget _riwayatTitle(Map<String, dynamic> homeJson) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
@@ -168,33 +275,31 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              //Bulannya
               Text(
                 'Bulan ini',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Outgoing: Rp 175.000',
+                    'Withdraw: ${rupiah((homeJson['summary']['withdraw'] as num).toDouble())}',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: Colors.grey.shade700,
                       fontWeight: FontWeight.w700,
+                      color: Colors.red,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Incoming: Rp 600.000',
+                    'Deposit: ${rupiah((homeJson['summary']['deposit'] as num).toDouble())}',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: Colors.grey.shade700,
                       fontWeight: FontWeight.w700,
+                      color: Colors.green,
                     ),
                   ),
                 ],
@@ -206,44 +311,59 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _riwayatList() {
+  Widget _riwayatList(Map<String, dynamic> homeJson) {
+    final List<Map<String, dynamic>> transactions =
+        List<Map<String, dynamic>>.from(homeJson['transactions']);
+
+    final grouped = groupByMonth(transactions);
+
     return Expanded(
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _trxItem(
-            icon: Icons.account_balance_wallet,
-            title: 'Penarikan Dana',
-            date: '02 Jun 2025, 09.15',
-            amount: '-Rp 150.000',
-            isMinus: true,
-          ),
-          const Divider(color: Colors.grey),
-          _trxItem(
-            icon: Icons.savings,
-            title: 'Setoran Dana',
-            date: '02 Jun 2025, 09.15',
-            amount: '+Rp 200.000',
-            isMinus: false,
-          ),
-          const Divider(color: Colors.grey),
-          _trxItem(
-            icon: Icons.store,
-            title: 'Indomaret Kopkar',
-            date: '02 Jun 2025, 09.15',
-            amount: '-Rp 75.000',
-            isMinus: true,
-          ),
-          const Divider(color: Colors.grey),
-          _trxItem(
-            icon: Icons.attach_money,
-            title: 'SHU',
-            date: '02 Jun 2025, 09.15',
-            amount: '+Rp 500.000',
-            isMinus: false,
-          ),
-          const Divider(color: Colors.grey),
-        ],
+        children:
+            grouped.entries.map((entry) {
+              final month = entry.key;
+              final items = entry.value;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //HEADER BUAT BULAN
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      month,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  //TRANSAKSI DI BULAN TERTENTU
+                  ...items.map((trx) {
+                    final isWithdraw = trx['type'] == 'withdraw';
+
+                    return Column(
+                      children: [
+                        _trxItem(
+                          icon:
+                              isWithdraw
+                                  ? Icons.account_balance_wallet
+                                  : Icons.savings,
+                          title: trx['title'],
+                          date: trx['date'],
+                          amount:
+                              '${isWithdraw ? '-' : '+'}${rupiah((trx['amount'] as num).toDouble())}',
+                          isMinus: isWithdraw,
+                        ),
+                        const Divider(),
+                      ],
+                    );
+                  }),
+                ],
+              );
+            }).toList(),
       ),
     );
   }
