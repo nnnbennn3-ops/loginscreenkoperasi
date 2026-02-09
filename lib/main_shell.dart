@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'portofolio.dart';
 import 'formulir_screen.dart';
 import 'settings_screen.dart';
+import '../providers/home_provider.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -14,17 +16,35 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final pages = const [
-    HomeScreen(),
-    PortofolioScreen(),
-    FormulirScreen(), // Formulir
-    SettingsScreen(), // Pengaturan
-  ];
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return ChangeNotifierProvider(
+          create: (_) => HomeProvider(),
+          child: const HomeScreen(),
+        );
+
+      case 1:
+        return const PortofolioScreen();
+
+      case 2:
+        return const FormulirScreen();
+
+      case 3:
+        return const SettingsScreen();
+
+      default:
+        return const SizedBox();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
+      body: IndexedStack(
+        index: _index,
+        children: List.generate(4, (i) => _buildPage(i)),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         selectedItemColor: const Color(0xFF0B1E8A),

@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'main_shell.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/login_service.dart';
+
+// const validUsername = 'koperasi';
+// const validPassword = '167168';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -358,16 +362,27 @@ class _LoginScreenState extends State<LoginScreen> {
       ).showSnackBar(const SnackBar(content: Text('Harap isi semua field')));
       return;
     }
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    await Future.delayed(const Duration(seconds: 1));
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainShell()),
-    );
+
+    try {
+      final user = await LoginService.login(email.text, password.text);
+
+      Navigator.pop(context); //close loadingnya
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainShell()),
+      );
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 }

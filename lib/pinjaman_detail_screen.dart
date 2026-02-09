@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simulasi_pinjaman_page.dart';
+import '../services/loan_service.dart';
+// import 'package:provider/provider.dart';
+// import 'providers/loan_provider.dart';
 
 class PinjamanDetailScreen extends StatelessWidget {
   const PinjamanDetailScreen({super.key});
@@ -25,22 +28,49 @@ class PinjamanDetailScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _ringkasan(context),
-            const SizedBox(height: 12),
-            _info(),
-            const SizedBox(height: 12),
-            _history(),
-          ],
-        ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: fetchLoanDetail(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'ERROR:\n${snapshot.error}',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: Text('Data kosong'));
+          }
+
+          final loanJson = snapshot.data!;
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _ringkasan(context, loanJson),
+                const SizedBox(height: 12),
+                _info(loanJson),
+                const SizedBox(height: 12),
+                _history(loanJson),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
   // ----- Widget Ringkasan -----
-  Widget _ringkasan(BuildContext context) {
+  Widget _ringkasan(BuildContext context, Map<String, dynamic> loanJson) {
+    final summary = loanJson['summary'];
+    final progress = summary['paid_installment'] / summary['total_installment'];
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Container(
@@ -57,14 +87,10 @@ class PinjamanDetailScreen extends StatelessWidget {
                 color: const Color(0xFF8B0000),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Image.asset(
-                'assets/pinjam.jpeg',
-                width: 32,
-                height: 32,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset('assets/pinjam.jpeg', width: 32, height: 32),
             ),
             const SizedBox(height: 16),
+
             Stack(
               alignment: Alignment.center,
               children: [
@@ -72,7 +98,7 @@ class PinjamanDetailScreen extends StatelessWidget {
                   width: 180,
                   height: 180,
                   child: CircularProgressIndicator(
-                    value: 0.5, // 50%
+                    value: progress,
                     strokeWidth: 12,
                     backgroundColor: Colors.red.shade100,
                     valueColor: const AlwaysStoppedAnimation<Color>(
@@ -81,7 +107,6 @@ class PinjamanDetailScreen extends StatelessWidget {
                   ),
                 ),
                 Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'Sisa Pinjaman',
@@ -92,7 +117,7 @@ class PinjamanDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      rupiah(3000000),
+                      rupiah((summary['remaining_loan'] as num).toDouble()),
                       style: GoogleFonts.beVietnamPro(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -100,7 +125,7 @@ class PinjamanDetailScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Dari ${rupiah(6000000)}',
+                      'Dari ${rupiah((summary['total_loan'] as num).toDouble())}',
                       style: GoogleFonts.beVietnamPro(
                         fontSize: 12,
                         color: Colors.grey,
@@ -150,14 +175,22 @@ class PinjamanDetailScreen extends StatelessWidget {
   }
 
   // ----- Widget Info -----
-  Widget _info() {
+  Widget _info(Map<String, dynamic> loanJson) {
+    final summary = loanJson['summary'];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          _infoRow('Sudah membayar', '6 dari total 12 cicilan'),
-          _infoRow('Pembayaran Selanjutnya', '10 Juni 2025'),
-          _infoRow('Pokok Hutang Dibayar', rupiah(3000000)),
+          _infoRow(
+            'Sudah membayar',
+            '${summary['paid_installment']} dari total ${summary['total_installment']} cicilan',
+          ),
+          _infoRow('Pembayaran Selanjutnya', summary['next_payment_date']),
+          _infoRow(
+            'Pokok Hutang Dibayar',
+            rupiah((summary['principal_paid'] as num).toDouble()),
+          ),
         ],
       ),
     );
@@ -189,7 +222,10 @@ class PinjamanDetailScreen extends StatelessWidget {
   }
 
   // ----- Widget History -----
-  Widget _history() {
+  Widget _history(Map<String, dynamic> loanJson) {
+    final List installments = loanJson['installments'];
+    final total = loanJson['summary']['total_installment'];
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -200,58 +236,58 @@ class PinjamanDetailScreen extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        //itemCount: 12,
-        //itemBuilder: (_, i) {
         child: Column(
-          children: List.generate(12, (i) {
-            final lunas = i < 6;
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children:
+              installments.map((trx) {
+                final lunas = trx['status'] == 'paid';
+
+                return Column(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Cicilan ${i + 1} dari 12',
-                          style: GoogleFonts.beVietnamPro(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cicilan ${trx['installment_no']} dari $total',
+                              style: GoogleFonts.beVietnamPro(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              trx['date'],
+                              style: GoogleFonts.beVietnamPro(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '25 May 2025, 09.15',
-                          style: GoogleFonts.beVietnamPro(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              rupiah((trx['amount'] as num).toDouble()),
+                              style: GoogleFonts.beVietnamPro(
+                                color: lunas ? Colors.black : Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              lunas ? 'Lunas' : 'Belum ada tagihan',
+                              style: GoogleFonts.beVietnamPro(
+                                fontSize: 12,
+                                color: lunas ? Colors.green : Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          rupiah(500000),
-                          style: GoogleFonts.beVietnamPro(
-                            color: lunas ? Colors.black : Colors.grey,
-                          ),
-                        ),
-                        Text(
-                          lunas ? 'Lunas' : 'Belum ada tagihan',
-                          style: GoogleFonts.beVietnamPro(
-                            fontSize: 12,
-                            color: lunas ? Colors.green : Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
+                    const Divider(),
                   ],
-                ),
-                const Divider(),
-              ],
-            );
-          }),
+                );
+              }).toList(),
         ),
       ),
     );

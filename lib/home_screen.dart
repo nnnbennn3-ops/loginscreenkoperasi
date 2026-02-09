@@ -123,7 +123,13 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
+            MaterialPageRoute(
+              builder:
+                  (_) => ChangeNotifierProvider.value(
+                    value: context.read<HomeProvider>(),
+                    child: const AddTransactionScreen(),
+                  ),
+            ),
           );
         },
         child: const Icon(Icons.add),

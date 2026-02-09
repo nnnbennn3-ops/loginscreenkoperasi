@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+// import 'package:koperasi_login_full/providers/loan_provider.dart';
 import 'login_screen.dart';
-import 'package:provider/provider.dart';
-import 'providers/home_provider.dart';
+// import 'package:provider/provider.dart';
+// import 'providers/home_provider.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(create: (_) => HomeProvider(), child: const MyApp()),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

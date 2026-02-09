@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simpanan_detail_screen.dart';
 import 'pinjaman_detail_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/loan_provider.dart';
 
 class PortofolioScreen extends StatelessWidget {
   const PortofolioScreen({super.key});
@@ -107,7 +109,13 @@ class PortofolioScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const PinjamanDetailScreen()),
+          MaterialPageRoute(
+            builder:
+                (_) => ChangeNotifierProvider(
+                  create: (_) => LoanProvider(),
+                  child: const PinjamanDetailScreen(),
+                ),
+          ),
         );
       },
       child: Container(
