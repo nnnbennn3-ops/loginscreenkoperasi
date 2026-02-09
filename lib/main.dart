@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 // import 'package:koperasi_login_full/providers/loan_provider.dart';
 import 'login_screen.dart';
-// import 'package:provider/provider.dart';
-// import 'providers/home_provider.dart';
+import '../cubit/login/login_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,14 +13,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Koperasi Indomobil',
-      theme: ThemeData(
-        useMaterial3: false,
-        primaryColor: const Color(0xFF0B1E8A),
+    return BlocProvider(
+      create: (_) => LoginCubit(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Koperasi Indomobil',
+        theme: ThemeData(
+          useMaterial3: false,
+          primaryColor: const Color(0xFF0B1E8A),
+        ),
+        home: const LoginScreen(),
       ),
-      home: const LoginScreen(),
     );
   }
 }

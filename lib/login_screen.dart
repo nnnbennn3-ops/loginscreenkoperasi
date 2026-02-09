@@ -5,6 +5,9 @@ import 'register_screen.dart';
 import 'main_shell.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/login_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/login/login_cubit.dart';
+import '../cubit/login/login_state.dart';
 
 // const validUsername = 'koperasi';
 // const validPassword = '167168';
@@ -45,11 +48,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _welcome(),
                     const SizedBox(height: 20),
-                    _form(),
-                    const SizedBox(height: 16),
-                    _options(),
-                    const SizedBox(height: 24),
-                    _loginButton(),
+                    BlocConsumer<LoginCubit, LoginState>(
+                      listener: (context, state) {
+                        if (state is LoginSuccess) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MainShell(),
+                            ),
+                          );
+                        }
+
+                        if (state is LoginError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.message)),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return Column(
+                          children: [
+                            _form(),
+                            const SizedBox(height: 16),
+                            _options(),
+                            const SizedBox(height: 24),
+                            state is LoginLoading
+                                ? const CircularProgressIndicator()
+                                : _loginButton(context),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -335,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // ===== LOGIN ===== Tombol Login
-  Widget _loginButton() {
+  Widget _loginButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -346,7 +375,9 @@ class _LoginScreenState extends State<LoginScreen> {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        onPressed: _login,
+        onPressed: () {
+          context.read<LoginCubit>().login(email.text, password.text);
+        },
         child: Text(
           'Login',
           style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
@@ -355,34 +386,34 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _login() async {
-    if (email.text.isEmpty || password.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Harap isi semua field')));
-      return;
-    }
+  // Future<void> _login() async {
+  //   if (email.text.isEmpty || password.text.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Harap isi semua field')));
+  //     return;
+  //   }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (_) => const Center(child: CircularProgressIndicator()),
+  //   );
 
-    try {
-      final user = await LoginService.login(email.text, password.text);
+  //   try {
+  //     final user = await LoginService.login(email.text, password.text);
 
-      Navigator.pop(context); //close loadingnya
+  //     Navigator.pop(context); //close loadingnya
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainShell()),
-      );
-    } catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-  }
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (_) => const MainShell()),
+  //     );
+  //   } catch (e) {
+  //     Navigator.pop(context);
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text(e.toString())));
+  //   }
+  // }
 }
