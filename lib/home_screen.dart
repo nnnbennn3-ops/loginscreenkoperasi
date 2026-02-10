@@ -50,6 +50,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showSaldo = true;
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController =
+        ScrollController()..addListener(() {
+          if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200) {
+            context.read<HomeCubit>().loadMore();
+          }
+        });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   String rupiah(double v) {
     return 'Rp ${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}';
@@ -113,15 +133,14 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, state) {
             if (state is HomeLoading) {
               return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state is HomeLoaded) {
+            } else if (state is HomeLoaded) {
               final homeJson = state.data;
 
               return Column(
                 children: [
                   _header(),
                   _saldoCard(homeJson),
+                  _riwayatTitle(homeJson),
                   _riwayatList(homeJson),
                 ],
               );
@@ -330,58 +349,72 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _riwayatList(Map<String, dynamic> homeJson) {
-    final List<Map<String, dynamic>> transactions =
-        List<Map<String, dynamic>>.from(homeJson['transactions']);
+    final state = context.watch<HomeCubit>().state;
 
+    if (state is! HomeLoaded) {
+      return const SizedBox();
+    }
+
+    final transactions = state.visibleTransactions;
+    final hasMore = state.hasMore;
     final grouped = groupByMonth(transactions);
+    final entries = grouped.entries.toList();
 
     return Expanded(
-      child: ListView(
+      child: ListView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children:
-            grouped.entries.map((entry) {
-              final month = entry.key;
-              final items = entry.value;
+        itemCount: entries.length + (hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == entries.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          final entry = entries[index];
+          final month = entry.key;
+          final items = entry.value;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //HEADER BUAT BULAN
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      month,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //HEADER BUAT BULAN
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  month,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
 
-                  //TRANSAKSI DI BULAN TERTENTU
-                  ...items.map((trx) {
-                    final isWithdraw = trx['type'] == 'withdraw';
+              //TRANSAKSI DI BULAN TERTENTU
+              ...items.map((trx) {
+                final isWithdraw = trx['type'] == 'withdraw';
 
-                    return Column(
-                      children: [
-                        _trxItem(
-                          icon:
-                              isWithdraw
-                                  ? Icons.account_balance_wallet
-                                  : Icons.savings,
-                          title: trx['title'],
-                          date: trx['date'],
-                          amount:
-                              '${isWithdraw ? '-' : '+'}${rupiah((trx['amount'] as num).toDouble())}',
-                          isMinus: isWithdraw,
-                        ),
-                        const Divider(),
-                      ],
-                    );
-                  }),
-                ],
-              );
-            }).toList(),
+                return Column(
+                  children: [
+                    _trxItem(
+                      icon:
+                          isWithdraw
+                              ? Icons.account_balance_wallet
+                              : Icons.savings,
+                      title: trx['title'],
+                      date: trx['date'],
+                      amount:
+                          '${isWithdraw ? '-' : '+'}${rupiah((trx['amount'] as num).toDouble())}',
+                      isMinus: isWithdraw,
+                    ),
+                    const Divider(),
+                  ],
+                );
+              }),
+            ],
+          );
+        },
       ),
     );
   }

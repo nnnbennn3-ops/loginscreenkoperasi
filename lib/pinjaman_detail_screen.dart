@@ -1,20 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simulasi_pinjaman_page.dart';
-import '../services/loan_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../cubit/loan/loan_cubit.dart';
-import '../cubit/loan/loan_state.dart';
+import 'cubit/loan/loan_cubit.dart';
+import 'cubit/loan/loan_state.dart';
 
-// import 'package:provider/provider.dart';
-// import 'providers/loan_provider.dart';
-
-class PinjamanDetailScreen extends StatelessWidget {
+class PinjamanDetailScreen extends StatefulWidget {
   const PinjamanDetailScreen({super.key});
+
+  @override
+  State<PinjamanDetailScreen> createState() => _PinjamanDetailScreenState();
+}
+
+class _PinjamanDetailScreenState extends State<PinjamanDetailScreen> {
+  late final ScrollController _scrollController;
 
   String rupiah(double v) {
     return 'Rp ${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}';
-  } //Regex buat tulisan rupiah
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<LoanCubit>().loadLoan();
+
+    _scrollController =
+        ScrollController()..addListener(() {
+          if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200) {
+            context.read<LoanCubit>().loadMore();
+          }
+        });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,24 +73,26 @@ class PinjamanDetailScreen extends StatelessWidget {
             final loanJson = state.data;
 
             return SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 children: [
                   _ringkasan(context, loanJson),
                   const SizedBox(height: 12),
                   _info(loanJson),
                   const SizedBox(height: 12),
-                  _history(loanJson),
+                  _history(state, loanJson),
                 ],
               ),
             );
           }
+
           return const SizedBox();
         },
       ),
     );
   }
 
-  // ----- Widget Ringkasan -----
+  // ================= RINGKASAN =================
   Widget _ringkasan(BuildContext context, Map<String, dynamic> loanJson) {
     final summary = loanJson['summary'];
     final progress = summary['paid_installment'] / summary['total_installment'];
@@ -174,7 +200,7 @@ class PinjamanDetailScreen extends StatelessWidget {
     );
   }
 
-  // ----- Widget Info -----
+  // ================= INFO =================
   Widget _info(Map<String, dynamic> loanJson) {
     final summary = loanJson['summary'];
 
@@ -221,9 +247,10 @@ class PinjamanDetailScreen extends StatelessWidget {
     );
   }
 
-  // ----- Widget History -----
-  Widget _history(Map<String, dynamic> loanJson) {
-    final List installments = loanJson['installments'];
+  // ================= HISTORY (PAGINATION) =================
+  Widget _history(LoanLoaded state, Map<String, dynamic> loanJson) {
+    final installments = state.installments;
+    final hasMore = state.hasMore;
     final total = loanJson['summary']['total_installment'];
 
     return Container(
@@ -234,61 +261,71 @@ class PinjamanDetailScreen extends StatelessWidget {
           topRight: Radius.circular(24),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children:
-              installments.map((trx) {
-                final lunas = trx['status'] == 'paid';
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: installments.length + (hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == installments.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-                return Column(
+          final trx = installments[index];
+          final lunas = trx['status'] == 'paid';
+
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Cicilan ${trx['installment_no']} dari $total',
-                              style: GoogleFonts.beVietnamPro(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              trx['date'],
-                              style: GoogleFonts.beVietnamPro(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Cicilan ${trx['installment_no']} dari $total',
+                          style: GoogleFonts.beVietnamPro(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              rupiah((trx['amount'] as num).toDouble()),
-                              style: GoogleFonts.beVietnamPro(
-                                color: lunas ? Colors.black : Colors.grey,
-                              ),
-                            ),
-                            Text(
-                              lunas ? 'Lunas' : 'Belum ada tagihan',
-                              style: GoogleFonts.beVietnamPro(
-                                fontSize: 12,
-                                color: lunas ? Colors.green : Colors.grey,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          trx['date'],
+                          style: GoogleFonts.beVietnamPro(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
-                    const Divider(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          rupiah((trx['amount'] as num).toDouble()),
+                          style: GoogleFonts.beVietnamPro(
+                            color: lunas ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          lunas ? 'Lunas' : 'Belum ada tagihan',
+                          style: GoogleFonts.beVietnamPro(
+                            fontSize: 12,
+                            color: lunas ? Colors.green : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
-                );
-              }).toList(),
-        ),
+                ),
+                const Divider(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

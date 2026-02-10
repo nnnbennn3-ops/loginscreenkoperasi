@@ -6,12 +6,10 @@ const _baseUrl = 'https://69858e016964f10bf2538794.mockapi.io';
 Future<Map<String, dynamic>> fetchLoanDetail() async {
   final res = await http.get(Uri.parse('$_baseUrl/pinjaman'));
 
-  print('Status Code: ${res.statusCode}');
-  print('Response Body: ${res.body}');
-
   if (res.statusCode == 200) {
     final List list = json.decode(res.body);
-    return list.first;
+    if (list.isEmpty) throw Exception('No pinjaman data');
+    return Map<String, dynamic>.from(list.first);
   } else {
     throw Exception('Gagal load data pinjaman');
   }

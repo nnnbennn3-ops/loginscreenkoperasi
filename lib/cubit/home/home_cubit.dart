@@ -5,82 +5,95 @@ import 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
 
-  Future<void> loadHome() async {
-    emit(HomeLoading());
-    try {
-      final data = await HomeService.fetchHome();
-      emit(HomeLoaded(data));
-    } catch (e) {
-      emit(HomeError(e.toString()));
+  static const int _pageSize = 10;
+  int _currentPage = 1;
+
+  List<Map<String, dynamic>> _allTransactions = [];
+
+  Future<void> loadHome({bool refresh = false}) async {
+    if (refresh) {
+      _currentPage = 1;
+      _allTransactions.clear();
     }
+
+    final data = await HomeService.fetchHome();
+
+    _allTransactions = List.from(data['transactions'] ?? []);
+
+    final visible = _allTransactions.take(_currentPage * _pageSize).toList();
+
+    emit(
+      HomeLoaded(
+        data: data, //
+        visibleTransactions: visible,
+        hasMore: _allTransactions.length > visible.length,
+      ),
+    );
+  }
+
+  void loadMore() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    print('load more called');
+    if (state is! HomeLoaded) return;
+
+    final current = state as HomeLoaded;
+    if (!current.hasMore) return;
+
+    _currentPage++;
+
+    final nextCount = _currentPage * _pageSize;
+    final newList = _allTransactions.take(nextCount).toList();
+
+    print('Data yang tampil: ${newList.length}');
+
+    emit(
+      HomeLoaded(
+        data: current.data,
+        visibleTransactions: newList,
+        hasMore: _allTransactions.length > newList.length,
+      ),
+    );
   }
 
   Future<void> addTransaction(Map<String, dynamic> trx) async {
-    if (state is! HomeLoaded) return;
-
-    final current = (state as HomeLoaded).data;
-
-    final amount = (trx['amount'] as num).toDouble();
-    final type = trx['type'];
-    final category = trx['category'];
-
-    final saldo = Map<String, dynamic>.from(current['saldo']);
-    final summary = Map<String, dynamic>.from(current['summary']);
-    final transactions = List<Map<String, dynamic>>.from(
-      current['transactions'],
-    );
-
-    if (category != 'wajib' && category != 'sukarela') {
-      emit(HomeError('Kategori tidak valid'));
-      emit(HomeLoaded(current));
-      return;
-    }
-
-    if (type == 'withdraw' && category == 'wajib') {
-      emit(HomeError('Simpanan wajib tidak bisa ditarik'));
-      emit(HomeLoaded(current));
-      return;
-    }
-
-    if (type == 'withdraw' && saldo[category] < amount) {
-      emit(HomeError('Saldo tidak mencukupi'));
-      emit(HomeLoaded(current));
-      return;
-    }
-
-    // ----- Buat update saldonya -----
-    if (type == 'deposit') {
-      saldo[category] += amount;
-      summary['deposit'] += amount;
-    } else {
-      saldo[category] -= amount;
-      summary['withdraw'] += amount;
-    }
-
-    saldo['total'] = saldo['wajib'] + saldo['sukarela'];
-
-    // ----- Add Transaksiong -----
-    transactions.add(trx);
-    transactions.sort((a, b) {
-      final da = DateTime.parse(a['date']);
-      final db = DateTime.parse(b['date']);
-      return db.compareTo(da); //ini biar transaksi paling baru ditaro di atas
-    });
-
-    final updated = {
-      ...current,
-      'saldo': saldo,
-      'summary': summary,
-      'transactions': transactions,
-    };
-
-    emit(HomeLoaded(updated));
-
     try {
-      await HomeService.updateHome(updated);
+      final home = await HomeService.fetchHome();
+
+      final List transactions = List.from(home['transactions'] ?? []);
+
+      transactions.insert(0, trx);
+
+      double wajib = (home['saldo']?['wajib'] as num?)?.toDouble() ?? 0.0;
+      double sukarela = (home['saldo']?['sukarela'] as num?)?.toDouble() ?? 0.0;
+
+      final String trxType = trx['type'];
+      final String category = trx['category'];
+      final double amount =
+          double.tryParse(trx['amount']?.toString() ?? '') ?? 0.0;
+
+      if (category == 'wajib') {
+        wajib += trxType == 'withdraw' ? -amount : amount;
+      }
+
+      if (category == 'sukarela') {
+        sukarela += trxType == 'withdraw' ? -amount : amount;
+      }
+
+      final updatedHome = {
+        ...home,
+        'transactions': transactions,
+        'saldo': {
+          'wajib': wajib,
+          'sukarela': sukarela,
+          'total': wajib + sukarela,
+        },
+      };
+
+      await HomeService.updateHome(updatedHome);
+      await loadHome(refresh: true);
     } catch (e) {
-      emit(HomeError('Gagal sinkronisasi ke server'));
-      emit(HomeLoaded(current));
+      emit(HomeError(e.toString()));
     }
   }
 }
