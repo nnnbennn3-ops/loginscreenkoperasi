@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../providers/home_provider.dart';
+// import 'package:koperasi_login_full/cubit/home/home_cubit.dart';
+// import 'package:provider/provider.dart';
+// import '../providers/home_provider.dart';
 import 'add_transaction_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/home/home_cubit.dart';
+import '../cubit/home/home_state.dart';
 
 //import 'portofolio.dart';
 
@@ -98,35 +102,43 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Consumer<HomeProvider>(
-          builder: (context, provider, _) {
-            if (provider.isLoading) {
+        child: BlocConsumer<HomeCubit, HomeState>(
+          listener: (context, state) {
+            if (state is HomeError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+          builder: (context, state) {
+            if (state is HomeLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final homeJson = provider.homeData!;
+            if (state is HomeLoaded) {
+              final homeJson = state.data;
 
-            return Column(
-              children: [
-                _header(),
-                const SizedBox(height: 6),
-                _saldoCard(homeJson),
-                _riwayatTitle(homeJson),
-                _riwayatList(homeJson),
-              ],
-            );
+              return Column(
+                children: [
+                  _header(),
+                  _saldoCard(homeJson),
+                  _riwayatList(homeJson),
+                ],
+              );
+            }
+
+            return const SizedBox();
           },
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder:
-                  (_) => ChangeNotifierProvider.value(
-                    value: context.read<HomeProvider>(),
+                  (_) => BlocProvider.value(
+                    value: context.read<HomeCubit>(),
                     child: const AddTransactionScreen(),
                   ),
             ),

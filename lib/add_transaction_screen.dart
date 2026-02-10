@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/home_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/home/home_cubit.dart';
+//import 'package:provider/provider.dart';
+// import '../providers/home_provider.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -102,13 +104,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
+                onPressed: () {
                   final amount = double.tryParse(amountController.text);
 
                   if (amount == null || amount <= 0) return;
 
                   try {
-                    context.read<HomeProvider>().addTransaction({
+                    context.read<HomeCubit>().addTransaction({
                       "type": type,
                       "category": category,
                       "title": titleController.text,

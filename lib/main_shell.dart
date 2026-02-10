@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'portofolio.dart';
 import 'formulir_screen.dart';
 import 'settings_screen.dart';
-import '../providers/home_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/home/home_cubit.dart';
+
+// import '../providers/home_provider.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -19,8 +22,8 @@ class _MainShellState extends State<MainShell> {
   Widget _buildPage(int index) {
     switch (index) {
       case 0:
-        return ChangeNotifierProvider(
-          create: (_) => HomeProvider(),
+        return BlocProvider(
+          create: (_) => HomeCubit()..loadHome(),
           child: const HomeScreen(),
         );
 

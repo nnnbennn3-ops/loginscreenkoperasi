@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simulasi_pinjaman_page.dart';
 import '../services/loan_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/loan/loan_cubit.dart';
+import '../cubit/loan/loan_state.dart';
+
 // import 'package:provider/provider.dart';
 // import 'providers/loan_provider.dart';
 
@@ -28,39 +32,35 @@ class PinjamanDetailScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchLoanDetail(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: BlocConsumer<LoanCubit, LoanState>(
+        listener: (context, state) {
+          if (state is LoanError) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        builder: (context, state) {
+          if (state is LoanLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'ERROR:\n${snapshot.error}',
-                textAlign: TextAlign.center,
+          if (state is LoanLoaded) {
+            final loanJson = state.data;
+
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _ringkasan(context, loanJson),
+                  const SizedBox(height: 12),
+                  _info(loanJson),
+                  const SizedBox(height: 12),
+                  _history(loanJson),
+                ],
               ),
             );
           }
-
-          if (!snapshot.hasData) {
-            return const Center(child: Text('Data kosong'));
-          }
-
-          final loanJson = snapshot.data!;
-
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _ringkasan(context, loanJson),
-                const SizedBox(height: 12),
-                _info(loanJson),
-                const SizedBox(height: 12),
-                _history(loanJson),
-              ],
-            ),
-          );
+          return const SizedBox();
         },
       ),
     );

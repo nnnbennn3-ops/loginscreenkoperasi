@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'simpanan_detail_screen.dart';
 import 'pinjaman_detail_screen.dart';
-import 'package:provider/provider.dart';
-import '../providers/loan_provider.dart';
+// import 'package:provider/provider.dart';
+// import '../providers/loan_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/loan/loan_cubit.dart';
 
 class PortofolioScreen extends StatelessWidget {
   const PortofolioScreen({super.key});
@@ -111,8 +113,8 @@ class PortofolioScreen extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder:
-                (_) => ChangeNotifierProvider(
-                  create: (_) => LoanProvider(),
+                (_) => BlocProvider(
+                  create: (_) => LoanCubit()..loadLoan(),
                   child: const PinjamanDetailScreen(),
                 ),
           ),

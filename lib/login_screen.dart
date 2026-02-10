@@ -9,9 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/login/login_cubit.dart';
 import '../cubit/login/login_state.dart';
 
-// const validUsername = 'koperasi';
-// const validPassword = '167168';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
